@@ -1,14 +1,14 @@
 Pinrepo
 =======
 
-Pinrepo is Pinterest solution for storing and serving build artifacts such as debian
+Pinrepo is a highly scalable solution for storing and serving build artifacts such as debian
 packages, maven jars and pypi packages.
 
 * **Simple**: publish and store build artifacts in AWS S3; serve with Nginx reverse proxy
 * **Extensible**: could eaily add other format support such as RPM
 * **Reliable**: highly available nginx cluster and AWS S3 service
 * **Scalable**: nginx layer scales horizontally; AWS S3 backend is highly scalable
-* **Devops-riendly**: has been running in production for 8 month with virtually no maintenance
+* **Devops-friendly**: has been running in production for 8 month with virtually no maintenance
 
 Find more details on the design at http://engineering.pinterest.com/.
 
