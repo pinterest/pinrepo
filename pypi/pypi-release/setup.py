@@ -3,14 +3,17 @@
 from setuptools import setup
 import os
 
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 markdown_contents = open(os.path.join(os.path.dirname(__file__),
-                                      'README.md')).read()
+                                      'README.rst')).read()
 
 setup(
     name='pypi-release',
     version=__version__,
+    description='Release pypi package to Pinrepo',
     long_description=markdown_contents,
+    url='https://github.com/pinterest/pinrepo',
+    license='Apache License 2.0',
     install_requires=['boto'],
     entry_points={
         'console_scripts': [
@@ -19,5 +22,6 @@ setup(
     },
     author="Baogang Song",
     author_email="baogang@pinterest.com",
+    keywords='pypi pinrepo pinterest artifact repository',
     packages=['pypi_release']
 )

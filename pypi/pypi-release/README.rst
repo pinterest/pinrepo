@@ -1,9 +1,7 @@
-Publish Python packages
-========================
+Publish pypi packages to Pinrepo
+================================
 
-The included pypi-release.py was created to upload package files to S3, as well as maintain
-their index. Be aware that the script does not support concurrent release on the same package
-at the same time. An external locking mechanism is needed in such case.
+pypi-release is created to publish pypi packages to Pinrepo, Pinterest Build Artifact Repository.
 
 **Use the following command to publish a python package
 

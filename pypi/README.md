@@ -12,9 +12,7 @@ pip install pypi-release
 
 ## Use the included pypi-release source
 
-The included pypi-release package under pypi-release directory could upload package files to S3,
-as well as maintain their index. Be aware that the script does not support concurrent release on
-the same package at the same time. An external locking mechanism is needed in such case.
+The included pypi-release package under pypi-release directory could upload pypi packages to S3.
 
 ## Publish pypi package
 
