@@ -1,0 +1,45 @@
+worker_processes  1;
+
+events {
+  worker_connections  1024;
+}
+
+http {
+  include       mime.types;
+  default_type  application/octet-stream;
+  
+  sendfile        on;
+
+  keepalive_timeout  65;
+ 
+  proxy_cache_path PYPIREPO_CACHE_PATH levels=1:2 keys_zone=PYPI:20m inactive=30d max_size=10g;
+
+  server {
+    listen 8080;
+    server_name localhost;
+
+    set $bucket PYPIREPO_BUCKET;
+    set $aws_access_key AWS_ACCESS_KEY_ID;
+    set $aws_secret_key AWS_SECRET_ACCESS_KEY;
+
+    location ~ ^/(.*)/$ {
+      set $key /$1/index.html;
+      proxy_hide_header Content-Type;
+      add_header Content-Type text/html;
+      include proxy.conf;
+    }
+
+    location ~ \.(tar.gz|zip|tar.bz2|tar|tgz)$ {
+      set $key $request_uri;
+      proxy_cache PYPI;
+      proxy_cache_valid 200 30d;
+      include proxy.conf;
+    }
+
+    location / {
+      set $key $request_uri;
+      include proxy.conf;
+    }
+  }
+}
+
