@@ -15,7 +15,7 @@ Find more details on the design at http://engineering.pinterest.com/.
 1. [nginx](nginx/) contains a Makefile to build a simple nginx with the minimum set of modules
 to run Pinrepo.
 
-2. [deb](deb/) contains an nginx config file for debain package repo and instructions to publish
+2. [deb](deb/) contains an nginx config file for debian package repo and instructions to publish
 debian packages
 
 3. [maven](maven/) contains an nginx config file for maven repo and instructions to publish
