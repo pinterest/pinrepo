@@ -2,7 +2,7 @@
 
 ## Run Pypi Pinrepo
 
-The provided `nginx.conf.tmpl` contains the minimum directives to make pinrepo work. Customize it to fit your own requirements; you need at least to change `PYPIREPO_CACHE_PATH, PYPIREPO_BUCKET, AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` to use your own bucket and key. Copy and overwrite your nginx server's nginx.conf and restart nginx. Be sure to copy `../nginx/proxy.conf` to your nginx config directory as well if not already.
+The provided `nginx.conf.tmpl` contains the minimum directives to make pinrepo work. Customize it to fit your own requirements; you need at least to change `PYPIREPO_CACHE_PATH, PYPIREPO_BUCKET, PYPIREPO_REGION, AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` to use your own bucket and key. Copy and overwrite your nginx server's nginx.conf and restart nginx. Be sure to copy `../nginx/proxy.conf` to your nginx config directory as well if not already.
 
 ## Install pypi-release
 

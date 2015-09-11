@@ -2,7 +2,7 @@
 
 ## Run Maven Pinrepo
 
-The provided `nginx.conf.tmpl` contains minimum directives to make pinrepo work. Customize it to fit your own requirements; you need at least to change `MAVENREPO_CACHE_PATH, MAVENREPO_BUCKET, AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` to use your own bucket and key. Copy and overwrite your nginx server's nginx.conf and restart nginx. Be sure to copy `../nginx/proxy.conf` to your nginx config directory as well if not already. 
+The provided `nginx.conf.tmpl` contains minimum directives to make pinrepo work. Customize it to fit your own requirements; you need at least to change `MAVENREPO_CACHE_PATH, MAVENREPO_REGION, BUCKET_REGION, AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` to use your own bucket and key. Copy and overwrite your nginx server's nginx.conf and restart nginx. Be sure to copy `../nginx/proxy.conf` to your nginx config directory as well if not already. 
 
 ## Use Maven Pinrepo
 
