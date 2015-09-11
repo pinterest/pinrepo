@@ -23,3 +23,9 @@ maven jars
 
 4. [pypi](pypi/) contains an nginx config file for pypi repo, the pypi-release source code and
 instructions to publish pypi packages
+
+### A note about S3 region
+The list of available regions can be found under [http://docs.aws.amazon.com/general/latest/gr/rande.html#s3_region](http://docs.aws.amazon.com/general/latest/gr/rande.html#s3_region)
+
+If you use the US Standard default region, specify `external-1` as the region variable.
+
