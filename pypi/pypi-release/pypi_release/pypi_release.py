@@ -68,9 +68,9 @@ class S3(object):
     def wait_until_available(self, key, n=100, interval=1):
         sleep_time = interval
         total_sleep_time = interval
-        for x in xrange(n):
+        for x in range(n):
             if not self.exists(key):
-                print "wait until %s is available in S3..." % key
+                print("wait until %s is available in S3..." % key)
                 time.sleep(sleep_time)
                 total_sleep_time += sleep_time
                 sleep_time += interval
@@ -126,7 +126,7 @@ def generate_index(s3=None, package_name=None, work_dir="/tmp", max_entry=MAX_EN
                                        key.size))
 
     if not entries:
-        print "Package %s has never been released, exit!" % package_name
+        print("Package %s has never been released, exit!" % package_name)
         return
 
     # sort the list based on object last_modified
@@ -153,7 +153,7 @@ def generate_index(s3=None, package_name=None, work_dir="/tmp", max_entry=MAX_EN
         start = 0
         if max_entry and max_entry < len(entries):
             start = 0 + len(entries) - max_entry
-        for i in xrange(start, len(entries)):
+        for i in range(start, len(entries)):
             new_entry = NEW_ENTRY_TMPL % (
                 safe_package_name, entries[i].name, entries[i].md5, entries[i].name,
                 entries[i].date, entries[i].size)
@@ -162,8 +162,8 @@ def generate_index(s3=None, package_name=None, work_dir="/tmp", max_entry=MAX_EN
         fn.write(INDEX_HTML_BOTTOM_TMPL)
 
     if dry_run:
-        print "Dryrun only, otherwise should have no problem to regenerate index for %s" % \
-              package_name
+        print("Dryrun only, otherwise should have no problem to regenerate index for %s" %
+              package_name)
         return
 
     # finally upload new index
@@ -174,7 +174,7 @@ def generate_index(s3=None, package_name=None, work_dir="/tmp", max_entry=MAX_EN
         s3.upload(s3_original_index_path, new)
         s3.wait_until_available(s3_original_index_path)
 
-    print "Successfully re-generated index for package %s" % package_name
+    print("Successfully re-generated index for package %s" % package_namej
 
 
 def gen_md5(file_path, block_size=2 ** 20):
@@ -214,7 +214,7 @@ def generate_new_index(work_dir, package_name, safe_package_name, file_name, fil
                 if file_name not in line:
                     entries.append(line)
                 else:
-                    print "Skip the existing entry for %s" % file_name
+                    print("Skip the existing entry for %s" % file_name)
 
     with open(new, 'w') as fn:
         top = INDEX_HTML_TOP_TMPL % (package_name, package_name)
@@ -224,9 +224,9 @@ def generate_new_index(work_dir, package_name, safe_package_name, file_name, fil
         start = 0
         if 0 < max_entry <= len(entries):
             start = 0 + len(entries) - max_entry + 1
-            print "Entries exceeded max allowed %d, skip the top %d entry" % (max_entry, start)
+            print("Entries exceeded max allowed %d, skip the top %d entry" % (max_entry, start))
 
-        for i in xrange(start, len(entries)):
+        for i in range(start, len(entries)):
             fn.write("%s" % entries[i])
 
         fn.write("%s\n" % new_entry)
@@ -260,7 +260,7 @@ def release(s3=None, file_path=None, work_dir="/tmp", max_entry=MAX_ENTRY, dry_r
     # download index.html if exists
     first_package = False
     if not s3.exists(s3_index_path):
-        print "Release %s the first time!" % package_name
+        print("Release %s the first time!" % package_namej
         first_package = True
     else:
         s3.download(s3_index_path, old)
@@ -270,7 +270,7 @@ def release(s3=None, file_path=None, work_dir="/tmp", max_entry=MAX_ENTRY, dry_r
                        first_package, max_entry)
 
     if dry_run:
-        print "Dryrun only, otherwise should have no problem to release %s" % file_path
+        print("Dryrun only, otherwise should have no problem to release %s" % file_path)
         return
 
     # finally upload both the package and new index
@@ -285,7 +285,7 @@ def release(s3=None, file_path=None, work_dir="/tmp", max_entry=MAX_ENTRY, dry_r
         s3.upload(s3_original_index_path, new)
         s3.wait_until_available(s3_original_index_path)
 
-    print "Successfully released %s" % file_path
+    print("Successfully released %s" % file_path)
 
 
 def main():
