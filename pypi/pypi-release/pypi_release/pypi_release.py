@@ -174,7 +174,7 @@ def generate_index(s3=None, package_name=None, work_dir="/tmp", max_entry=MAX_EN
         s3.upload(s3_original_index_path, new)
         s3.wait_until_available(s3_original_index_path)
 
-    print("Successfully re-generated index for package %s" % package_namej
+    print("Successfully re-generated index for package %s" % package_name)
 
 
 def gen_md5(file_path, block_size=2 ** 20):
@@ -260,7 +260,7 @@ def release(s3=None, file_path=None, work_dir="/tmp", max_entry=MAX_ENTRY, dry_r
     # download index.html if exists
     first_package = False
     if not s3.exists(s3_index_path):
-        print("Release %s the first time!" % package_namej
+        print("Release %s the first time!" % package_name)
         first_package = True
     else:
         s3.download(s3_index_path, old)
