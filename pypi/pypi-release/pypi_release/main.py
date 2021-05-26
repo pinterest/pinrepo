@@ -12,41 +12,51 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#!/usr/bin/env python
 
 """
 Release python packages to Pypi Pinrepo.
 """
-import argparse
-import boto
 import datetime
 import hashlib
 import os
 import re
-import sys
 import time
+
+import boto
 
 MAX_ENTRY = 0
 ENTRY_PATTERN = re.compile('<a href="(.*)">(.*)</a>(.*)')
 NEW_ENTRY_TMPL = '<a href="../%s/%s#md5=%s" rel="internal">%s</a> %s %d<br/>'
-INDEX_HTML_TOP_TMPL = '<html><head>' \
-                      '<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />' \
-                      '<title>Index of %s</title>' \
-                      '</head><body bgcolor="white">' \
-                      '<h1>Index of %s</h1><hr>'
-INDEX_HTML_BOTTOM_TMPL = '<hr></body></html>'
-OLD_INDEX_FILENAME = 'index.html.old'
-NEW_INDEX_FILENAME = 'index.html.new'
+INDEX_HTML_TOP_TMPL = (
+    "<html><head>"
+    '<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />'
+    "<title>Index of %s</title>"
+    '</head><body bgcolor="white">'
+    "<h1>Index of %s</h1><hr>"
+)
+INDEX_HTML_BOTTOM_TMPL = "<hr></body></html>"
+OLD_INDEX_FILENAME = "index.html.old"
+NEW_INDEX_FILENAME = "index.html.new"
 
 # Steal from pip source, https://github.com/pypa/pip/blob/develop/pip/_vendor/distlib/util.py
-PROJECT_NAME_AND_VERSION = re.compile('([a-z0-9_]+([.-][a-z_][a-z0-9_]*)*)-'
-                                      '([a-z0-9_.+-]+)\.(tar\.gz|tar\.bz2|tar|tgz|zip|whl)', re.I)
+PROJECT_NAME_AND_VERSION = re.compile(
+    r"([a-z0-9_]+([.-][a-z_][a-z0-9_]*)*)-"
+    r"([a-z0-9_.+-]+)\.(tar\.gz|tar\.bz2|tar|tgz|zip|whl)",
+    re.I,
+)
 
 
 class S3(object):
-    def __init__(self, aws_access_key_id=None, aws_secret_access_key=None, bucket=None):
-        conn = boto.connect_s3(aws_access_key_id=aws_access_key_id,
-                               aws_secret_access_key=aws_secret_access_key)
+    def __init__(
+        self,
+        aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
+        aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
+        bucket=None,
+    ):
+        conn = boto.connect_s3(
+            aws_access_key_id=aws_access_key_id,
+            aws_secret_access_key=aws_secret_access_key,
+        )
         self.bucket = conn.get_bucket(bucket)
 
     def exists(self, key):
@@ -77,7 +87,9 @@ class S3(object):
             else:
                 return
         raise Exception(
-            "%s has not showed up in S3 after %d sec, check it manually." % (key, total_sleep_time))
+            "%s has not showed up in S3 after %d sec, check it manually."
+            % (key, total_sleep_time)
+        )
 
 
 class PackageItem(object):
@@ -89,7 +101,7 @@ class PackageItem(object):
 
 
 def safe_name(name):
-    return re.sub('[^A-Za-z0-9.]+', '-', name).lower()
+    return re.sub("[^A-Za-z0-9.]+", "-", name).lower()
 
 
 # Give full path of the file, return the package name and file name
@@ -108,8 +120,9 @@ def extract_package_name(path):
         raise Exception("File name %s is not supported!" % file_name)
 
 
-def generate_index(s3=None, package_name=None, work_dir="/tmp", max_entry=MAX_ENTRY,
-                   dry_run=False):
+def generate_index(
+    s3=None, package_name=None, work_dir="/tmp", max_entry=MAX_ENTRY, dry_run=False
+):
     work_dir = "%s/%s" % (work_dir, package_name)
     # see comments in release.py for the reason why canonical package name is needed
     safe_package_name = safe_name(package_name)
@@ -122,8 +135,9 @@ def generate_index(s3=None, package_name=None, work_dir="/tmp", max_entry=MAX_EN
         file_name = os.path.basename(key.name)
         # ignore index.html
         if file_name != "index.html":
-            entries.append(PackageItem(file_name, key.etag.strip('"'), key.last_modified,
-                                       key.size))
+            entries.append(
+                PackageItem(file_name, key.etag.strip('"'), key.last_modified, key.size)
+            )
 
     if not entries:
         print("Package %s has never been released, exit!" % package_name)
@@ -136,8 +150,8 @@ def generate_index(s3=None, package_name=None, work_dir="/tmp", max_entry=MAX_EN
     if not os.path.exists(work_dir):
         os.makedirs(work_dir)
 
-    old = '%s/%s' % (work_dir, OLD_INDEX_FILENAME)
-    new = '%s/%s' % (work_dir, NEW_INDEX_FILENAME)
+    old = "%s/%s" % (work_dir, OLD_INDEX_FILENAME)
+    new = "%s/%s" % (work_dir, NEW_INDEX_FILENAME)
 
     # download index.html if exists, for information only
     if s3.exists(s3_index_path):
@@ -145,7 +159,7 @@ def generate_index(s3=None, package_name=None, work_dir="/tmp", max_entry=MAX_EN
 
     # generate index.html, remove older entries if the total entries exceed max_retry
     # S3 objects return in alphabetical order, we will re-order based on last modified time
-    with open(new, 'w') as fn:
+    with open(new, "w") as fn:
         top = INDEX_HTML_TOP_TMPL % (package_name, package_name)
         fn.write("%s\n" % top)
 
@@ -155,15 +169,22 @@ def generate_index(s3=None, package_name=None, work_dir="/tmp", max_entry=MAX_EN
             start = 0 + len(entries) - max_entry
         for i in range(start, len(entries)):
             new_entry = NEW_ENTRY_TMPL % (
-                safe_package_name, entries[i].name, entries[i].md5, entries[i].name,
-                entries[i].date, entries[i].size)
+                safe_package_name,
+                entries[i].name,
+                entries[i].md5,
+                entries[i].name,
+                entries[i].date,
+                entries[i].size,
+            )
             fn.write("%s\n" % new_entry)
 
         fn.write(INDEX_HTML_BOTTOM_TMPL)
 
     if dry_run:
-        print("Dryrun only, otherwise should have no problem to regenerate index for %s" %
-              package_name)
+        print(
+            "Dryrun only, otherwise should have no problem to regenerate index for %s"
+            % package_name
+        )
         return
 
     # finally upload new index
@@ -178,7 +199,7 @@ def generate_index(s3=None, package_name=None, work_dir="/tmp", max_entry=MAX_EN
 
 
 def gen_md5(file_path, block_size=2 ** 20):
-    with open(file_path, 'rb') as fn:
+    with open(file_path, "rb") as fn:
         md5 = hashlib.md5()
         while True:
             data = fn.read(block_size)
@@ -188,19 +209,32 @@ def gen_md5(file_path, block_size=2 ** 20):
         return md5.hexdigest()
 
 
-def generate_new_index(work_dir, package_name, safe_package_name, file_name, file_path,
-                       first_package, max_entry):
-    old = '%s/%s' % (work_dir, OLD_INDEX_FILENAME)
-    new = '%s/%s' % (work_dir, NEW_INDEX_FILENAME)
+def generate_new_index(
+    work_dir,
+    package_name,
+    safe_package_name,
+    file_name,
+    file_path,
+    first_package,
+    max_entry,
+):
+    old = "%s/%s" % (work_dir, OLD_INDEX_FILENAME)
+    new = "%s/%s" % (work_dir, NEW_INDEX_FILENAME)
 
     size = os.path.getsize(file_path)
-    date = datetime.datetime.utcnow().isoformat()[:-3] + 'Z'
+    date = datetime.datetime.utcnow().isoformat()[:-3] + "Z"
     md5 = gen_md5(file_path)
     new_entry = NEW_ENTRY_TMPL % (
-        safe_package_name, file_name, md5, file_name, date, size)
+        safe_package_name,
+        file_name,
+        md5,
+        file_name,
+        date,
+        size,
+    )
 
     if first_package:
-        with open(new, 'w') as fn:
+        with open(new, "w") as fn:
             top = INDEX_HTML_TOP_TMPL % (package_name, package_name)
             fn.write("%s\n%s\n%s" % (top, new_entry, INDEX_HTML_BOTTOM_TMPL))
             return
@@ -216,7 +250,7 @@ def generate_new_index(work_dir, package_name, safe_package_name, file_name, fil
                 else:
                     print("Skip the existing entry for %s" % file_name)
 
-    with open(new, 'w') as fn:
+    with open(new, "w") as fn:
         top = INDEX_HTML_TOP_TMPL % (package_name, package_name)
         fn.write("%s\n" % top)
 
@@ -224,7 +258,10 @@ def generate_new_index(work_dir, package_name, safe_package_name, file_name, fil
         start = 0
         if 0 < max_entry <= len(entries):
             start = 0 + len(entries) - max_entry + 1
-            print("Entries exceeded max allowed %d, skip the top %d entry" % (max_entry, start))
+            print(
+                "Entries exceeded max allowed %d, skip the top %d entry"
+                % (max_entry, start)
+            )
 
         for i in range(start, len(entries)):
             fn.write("%s" % entries[i])
@@ -233,8 +270,14 @@ def generate_new_index(work_dir, package_name, safe_package_name, file_name, fil
         fn.write(INDEX_HTML_BOTTOM_TMPL)
 
 
-def release(s3=None, file_path=None, work_dir="/tmp", max_entry=MAX_ENTRY, dry_run=False,
-            force=False):
+def release(
+    s3=None,
+    file_path=None,
+    work_dir="/tmp",
+    max_entry=MAX_ENTRY,
+    dry_run=False,
+    force=False,
+):
     package_name, file_name = extract_package_name(file_path)
     work_dir = "%s/%s" % (work_dir, package_name)
 
@@ -251,8 +294,8 @@ def release(s3=None, file_path=None, work_dir="/tmp", max_entry=MAX_ENTRY, dry_r
     if not force and s3.exists(s3_file_path):
         raise Exception("%s existed already, use --force if release again!" % file_name)
 
-    old = '%s/%s' % (work_dir, OLD_INDEX_FILENAME)
-    new = '%s/%s' % (work_dir, NEW_INDEX_FILENAME)
+    old = "%s/%s" % (work_dir, OLD_INDEX_FILENAME)
+    new = "%s/%s" % (work_dir, NEW_INDEX_FILENAME)
     # make sure dir exists
     if not os.path.exists(work_dir):
         os.makedirs(work_dir)
@@ -266,8 +309,15 @@ def release(s3=None, file_path=None, work_dir="/tmp", max_entry=MAX_ENTRY, dry_r
         s3.download(s3_index_path, old)
 
     # generate the new index.html first
-    generate_new_index(work_dir, package_name, safe_package_name, file_name, file_path,
-                       first_package, max_entry)
+    generate_new_index(
+        work_dir,
+        package_name,
+        safe_package_name,
+        file_name,
+        file_path,
+        first_package,
+        max_entry,
+    )
 
     if dry_run:
         print("Dryrun only, otherwise should have no problem to release %s" % file_path)
@@ -288,51 +338,43 @@ def release(s3=None, file_path=None, work_dir="/tmp", max_entry=MAX_ENTRY, dry_r
     print("Successfully released %s" % file_path)
 
 
-def main():
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('-f', '--file-path', dest='file_path',
-                        help='the full path of the package to be released')
-    parser.add_argument('-i', '--aws-access-key-id', dest='aws_access_key_id',
-                        help='AWS access key id; if not provided, will use environment variable '
-                             'AWS_ACCESS_KEY_ID')
-    parser.add_argument('-k', '--aws-secret-access-key', dest='aws_secret_access_key',
-                        help='AWS secret access key; if not provided, will use environment '
-                             'variable AWS_SECRET_ACCESS_KEY')
-    parser.add_argument('-b', '--bucket', dest='bucket', required=True,
-                        help='AWS bucket holding all the python packages.')
-    parser.add_argument('-m', '--max-entry', type=int, dest='max_entry',
-                        help='the max number of versions to keep in index.html, '
-                             'default is unlimited.')
-    parser.add_argument('--regenerate-index', dest='regenerate_index', action='store_true',
-                        help='[re]generate the index.html for a package, package_name is needed.')
-    parser.add_argument('-p', '--package_name', dest='package_name',
-                        help='the name of the package to regenerate index.html for')
-    parser.add_argument('-d', '--work-dir', dest='work_dir', default='/tmp',
-                        help='the directory to save intermediate files, default is /tmp.')
-    parser.add_argument('--force', dest='force', action='store_true',
-                        help='force to release the same version again, will overwrite the '
-                             'existing one.')
-    parser.add_argument('--dry-run', dest='dry_run', action='store_true',
-                        help='will not update anything, just a sanity test.')
-    args = parser.parse_args()
+def main(
+    file_path,
+    aws_access_key_id,
+    aws_secret_access_key,
+    bucket,
+    package_name,
+    work_dir,
+    max_entry=0,
+    regenerate_index=False,
+    force=False,
+    dry_run=False,
+):
 
-    s3 = S3(aws_access_key_id=args.aws_access_key_id,
-            aws_secret_access_key=args.aws_secret_access_key,
-            bucket=args.bucket)
+    s3 = S3(
+        aws_access_key_id=aws_access_key_id,
+        aws_secret_access_key=aws_secret_access_key,
+        bucket=bucket,
+    )
 
-    if args.regenerate_index:
-        if not args.package_name:
-            print("package-name is needed when regenerate index.html!")
-            sys.exit(1)
-        generate_index(s3=s3, package_name=args.package_name, work_dir=args.work_dir,
-                       max_entry=args.max_entry, dry_run=args.dry_run)
+    if regenerate_index:
+        if not package_name:
+            raise ValueError("Package name is required when regenerating an index")
+        generate_index(
+            s3=s3,
+            package_name=package_name,
+            work_dir=work_dir,
+            max_entry=max_entry,
+            dry_run=dry_run,
+        )
     else:
-        if not args.file_path:
-            print("file-path is needed when release package!")
-            sys.exit(1)
-        release(s3=s3, file_path=args.file_path, work_dir=args.work_dir,
-                max_entry=args.max_entry, dry_run=args.dry_run, force=args.force)
-
-
-if __name__ == '__main__':
-    main()
+        if not file_path:
+            raise ValueError("File path is required when releasing a package")
+        release(
+            s3=s3,
+            file_path=file_path,
+            work_dir=work_dir,
+            max_entry=max_entry,
+            dry_run=dry_run,
+            force=force,
+        )
