@@ -16,9 +16,7 @@ setup(
     license='Apache License 2.0',
     install_requires=['boto'],
     entry_points={
-        'console_scripts': [
-            'pypi-release = pypi_release.pypi_release:main'
-        ],
+        "console_scripts": ["pypi-release = pypi_release.__main__:main"],
     },
     author="Baogang Song",
     author_email="baogang@pinterest.com",
