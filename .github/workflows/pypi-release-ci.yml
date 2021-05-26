@@ -1,0 +1,39 @@
+name: pypi-release Continuous Integration
+
+defaults:
+  run:
+    shell: bash
+    working-directory: pypi/pypi-release
+
+on:
+  push:
+    paths:
+      - 'pypi/pypi-release/**'
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version:
+          - 2.7
+          - 3.5
+          - 3.6
+          - 3.7
+          - 3.8
+          - 3.9
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install package and dependencies
+        run: |
+          python -m pip install -r requirements.txt .[dev]
+
+      - name: Test CLI help
+        run: |
+          python -m pypi_release --help >/dev/null
+          pypi-release --help >/dev/null
