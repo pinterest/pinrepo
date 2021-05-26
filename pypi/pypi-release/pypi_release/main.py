@@ -41,8 +41,11 @@ OLD_INDEX_FILENAME = 'index.html.old'
 NEW_INDEX_FILENAME = 'index.html.new'
 
 # Steal from pip source, https://github.com/pypa/pip/blob/develop/pip/_vendor/distlib/util.py
-PROJECT_NAME_AND_VERSION = re.compile('([a-z0-9_]+([.-][a-z_][a-z0-9_]*)*)-'
-                                      '([a-z0-9_.+-]+)\.(tar\.gz|tar\.bz2|tar|tgz|zip|whl)', re.I)
+PROJECT_NAME_AND_VERSION = re.compile(
+    r"([a-z0-9_]+([.-][a-z_][a-z0-9_]*)*)-"
+    r"([a-z0-9_.+-]+)\.(tar\.gz|tar\.bz2|tar|tgz|zip|whl)",
+    re.I,
+)
 
 
 class S3(object):
