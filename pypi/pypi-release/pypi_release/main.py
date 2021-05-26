@@ -349,7 +349,7 @@ def main(
     bucket,
     package_name,
     work_dir,
-    max_entry,
+    max_entry=0,
     regenerate_index=False,
     force=False,
     dry_run=False,

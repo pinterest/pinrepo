@@ -64,6 +64,7 @@ def main():
         "--max-entry",
         type=int,
         dest="max_entry",
+        default=0,
         help="the max number of versions to keep in index.html, "
         "default is unlimited.",
     )
