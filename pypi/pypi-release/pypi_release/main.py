@@ -51,7 +51,12 @@ PROJECT_NAME_AND_VERSION = re.compile(
 
 
 class S3(object):
-    def __init__(self, aws_access_key_id=None, aws_secret_access_key=None, bucket=None):
+    def __init__(
+        self,
+        aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
+        aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
+        bucket=None,
+    ):
         conn = boto.connect_s3(
             aws_access_key_id=aws_access_key_id,
             aws_secret_access_key=aws_secret_access_key,
