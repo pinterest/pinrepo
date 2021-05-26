@@ -17,8 +17,8 @@
 """
 Release python packages to Pypi Pinrepo.
 """
-import logging
 import argparse
+import logging
 
 import pypi_release.main as api
 
