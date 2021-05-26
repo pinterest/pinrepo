@@ -19,6 +19,7 @@ Release python packages to Pypi Pinrepo.
 """
 import argparse
 import logging
+from sys import exit
 
 import pypi_release.main as api
 
@@ -102,18 +103,22 @@ def main():
     )
     args = parser.parse_args()
 
-    api.main(
-        file_path=args.file_path,
-        aws_access_key_id=args.aws_access_key_id,
-        aws_secret_access_key=args.aws_secret_access_key,
-        bucket=args.bucket,
-        package_name=args.package_name,
-        work_dir=args.work_dir,
-        max_entry=args.max_entry,
-        regenerate_index=args.regenerate_index,
-        force=args.force,
-        dry_run=args.dry_run,
-    )
+    try:
+        api.main(
+            file_path=args.file_path,
+            aws_access_key_id=args.aws_access_key_id,
+            aws_secret_access_key=args.aws_secret_access_key,
+            bucket=args.bucket,
+            package_name=args.package_name,
+            work_dir=args.work_dir,
+            max_entry=args.max_entry,
+            regenerate_index=args.regenerate_index,
+            force=args.force,
+            dry_run=args.dry_run,
+        )
+    except Exception:
+        __LOGGER__.exception("Error occurred while performing operations")
+        exit(1)
 
 
 main()

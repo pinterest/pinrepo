@@ -18,15 +18,11 @@ Release python packages to Pypi Pinrepo.
 """
 import datetime
 import hashlib
-import logging
 import os
 import re
-import sys
 import time
 
 import boto
-
-__LOGGER__ = logging.getLogger(__name__)
 
 MAX_ENTRY = 0
 ENTRY_PATTERN = re.compile('<a href="(.*)">(.*)</a>(.*)')
@@ -363,8 +359,7 @@ def main(
 
     if regenerate_index:
         if not package_name:
-            print("package-name is needed when regenerate index.html!")
-            sys.exit(1)
+            raise ValueError("Package name is required when regenerating an index")
         generate_index(
             s3=s3,
             package_name=package_name,
@@ -374,16 +369,12 @@ def main(
         )
     else:
         if not file_path:
-            print("file-path is needed when release package!")
-            sys.exit(1)
-        try:
-            release(
-                s3=s3,
-                file_path=file_path,
-                work_dir=work_dir,
-                max_entry=max_entry,
-                dry_run=dry_run,
-                force=force,
-            )
-        except Exception:
-            __LOGGER__.exception("Failed to upload release")
+            raise ValueError("File path is required when releasing a package")
+        release(
+            s3=s3,
+            file_path=file_path,
+            work_dir=work_dir,
+            max_entry=max_entry,
+            dry_run=dry_run,
+            force=force,
+        )
