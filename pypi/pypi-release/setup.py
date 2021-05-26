@@ -7,9 +7,7 @@ __version__ = '1.0.1'
 markdown_contents = open(os.path.join(os.path.dirname(__file__),
                                       'README.rst')).read()
 
-DEV_REQUIREMENTS = {
-    "": ["flake8"],
-}
+DEV_REQUIREMENTS = {"": ["flake8"], "3.6": ["black", "isort"]}
 
 setup(
     name='pypi-release',

@@ -38,6 +38,21 @@ jobs:
         if: ${{ matrix.python-version == '3.9' || matrix.python-version == '2.7' }}
         run: python -m flake8
 
+      - name: Autoformat source
+        if: ${{ matrix.python-version == '3.9' }}
+        run: >-
+          python -m black
+          -t py27 -t py33 -t py34 -t py35 -t py36 -t py37 -t py38 -t py39
+          --check
+          setup.py
+          pypi_release
+          &&
+          python -m isort
+          --check
+          --python-version all
+          setup.py
+          pypi_release
+
       - name: Test CLI help
         run: |
           python -m pypi_release --help >/dev/null
