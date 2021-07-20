@@ -3,7 +3,7 @@ Publish pypi packages to Pinrepo
 
 pypi-release is created to publish pypi packages to Pinrepo, Pinterest Build Artifact Repository.
 
-**Use the following command to publish a python package
+**Use the following command to publish a python package**
 
 ```
 pypi-release -b PYPIREPO_BUCKET -i AWS_ACCESS_KEY_ID -k AWS_SECRET_ACCESS_KEY -f sample-package-1.0.0.tar.gz
